@@ -49,7 +49,7 @@ class WS:
     async def handler(self, websocket, path):
         client = WSClient(websocket)
         self._clients.add(client)
-        
+
         # Send initial State... It send it to everyone connected but it not a big issue
         await self.notifyStateChanged(None)
 
@@ -162,7 +162,7 @@ class HTTP:
         #print(data)
         #reader = await request.multipart()
         #data = await request.post()
-        #print(data) 
+        #print(data)
         # /!\ Don't forget to validate your inputs /!\
 
         # reader.next() will `yield` the fields of your form
@@ -333,7 +333,7 @@ class HDServer:
                         ]
             elif cmd == 'clips get':
                 clip_id = self.parseGet(params, lines, 'clip id')
-                response = [ 
+                response = [
                             "205 clips info:"
                             ]
                 fl = self.hdi.list_media()
@@ -346,16 +346,16 @@ class HDServer:
                 else:
                     response.append("clip count: " + str(len(fl)))
                 for f in fl:
-                    (width, height, duration, fps, fps_out) = (0,0,0,0,24)
+                    (width, height, duration, fps, fps_out) = (0,0,0,0,30)
                     meta = self.hdi.findClipMetadata(at)
                     if meta:
                         (width, height, duration, fps) = meta
-                        if fps != 0 and fps != "0/0":
+                        if fps is not None and fps != 0 and fps != "0/0":
                             print ("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII", fps)
                             fps_s = fps.split('/')
                             fps_out = int(fps_s[0]) / int(fps_s[1])
                         else:
-                            fps_out = 24
+                            fps_out = 30
                             duration = 1000
                     (h,m,s,fr) = self.hdi.hd.time_to_timecode(duration, fps_out)
                     tc = f'{h:02}:{m:02}:{s:02}:{fr:02}'
@@ -421,7 +421,7 @@ class USBMonitor:
                 # do something
 
 import logging
-async def serve():                                                                                           
+async def serve():
     # Telnet
     hdi = HyperDeckInterface()
     usbmon = USBMonitor(asyncio.Event(), hdi)
@@ -431,11 +431,11 @@ async def serve():
 
     hds = HDServer(hdi)
     ts = await asyncio.start_server( hds.new_conn, '', 9993)
-  
+
     addr = ts.sockets[0].getsockname()
     print(f'Serving HyperDeck Server on {addr}')
 
-    
+
     logging.basicConfig(level=logging.DEBUG)
     #http
     http = HTTP(hdi)
